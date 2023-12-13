@@ -20,6 +20,15 @@ func NewHandler(db *sqlx.DB) *Handler {
 	return &Handler{db: db}
 }
 
+type CountryList struct {
+	CountryCode string `json:"countrycode,omitempty" db:"Code"`
+	CountryName string `json:"name" db:"Name"`
+}
+
+type CityList struct {
+	CityName string `json:"name" db:"Name"`
+}
+
 type City struct {
 	ID          int            `json:"ID,omitempty" db:"ID"`
 	Name        sql.NullString `json:"name,omitempty" db:"Name"`
@@ -139,6 +148,25 @@ func (h *Handler) GetMeHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, Me{
 		Username: c.Get("userName").(string),
 	})
+}
+
+func (h *Handler) GetCountryListHandler(c echo.Context) error {
+	var countryList []CountryList
+	err := h.db.Select(&countryList, "SELECT Code, Name FROM country")
+	if err != nil {
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	return c.JSON(http.StatusOK, countryList)
+}
+
+func (h *Handler) GetCityListHandler(c echo.Context) error {
+	countryCode := c.Param("countryCode")
+	var cityList []CityList
+	err := h.db.Select(&cityList, "SELECT Name FROM city WHERE CountryCode=?", countryCode)
+	if err != nil {
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	return c.JSON(http.StatusOK, cityList)
 }
 
 func (h *Handler) GetCityInfoHandler(c echo.Context) error {
