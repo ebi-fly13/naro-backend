@@ -144,6 +144,18 @@ func (h *Handler) LoginHandler(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+func (h *Handler) LogoutHandler(c echo.Context) error {
+	sess, err := session.Get("sessions", c)
+	if err != nil {
+		log.Println(err)
+		return c.String(http.StatusInternalServerError, "something wrong in getting session")
+	}
+	delete(sess.Values, "userName")
+	sess.Save(c.Request(), c.Response())
+
+	return c.NoContent(http.StatusOK)
+}
+
 func (h *Handler) GetMeHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, Me{
 		Username: c.Get("userName").(string),

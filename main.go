@@ -71,6 +71,7 @@ func main() {
 	withAuth.POST("/cities", h.PostCityHandler)
 	withAuth.GET("/countries", h.GetCountryListHandler)
 	withAuth.GET("/countries/:countryCode", h.GetCityListHandler)
+	withAuth.POST("/logout", h.LogoutHandler)
 
 	err = e.Start(":8080")
 
